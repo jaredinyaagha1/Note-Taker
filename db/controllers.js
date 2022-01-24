@@ -1,9 +1,7 @@
-const utils = require('util');
+const util = require('util');
 const fs = require('fs');
-const {
-    parse
-} = require('path');
-const uuid = require('uuid/v1');
+const {parse} = require('path');
+const {v4: uuidv4} = require('uuid');
 
 const readFromFile = util.promisify(fs.readFile);
 const writeToFile = util.promisify(fs.writeFile);
@@ -15,7 +13,7 @@ class DataStorage {
     }
 
     write(n) {
-        return writeToFile('db/db.json', JSON.stringify(n))
+        return writeToFile('db/db.json', n)
     }
 
     getNotes() {
@@ -40,18 +38,15 @@ class DataStorage {
         const newNote = {
             title,
             text,
-            id: uuid()
+            id: uuidv4()
         }
+        console.log(newNote)
         return this.getNotes()
-            .then((notes) => {
-                [...notes, newNote]
-            })
-            .then((updated) => {
-                this.write(updated)
-            })
-            .then(() => {
-                newNote
-            })
+            .then((notes) => JSON.stringify([...notes, newNote]))
+            .then((updated) => this.write(updated)
+            )
+            .then(() => newNote
+            )
     }
 }
 
